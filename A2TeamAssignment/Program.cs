@@ -24,22 +24,24 @@ namespace A2TeamAssignment
 
             using (var httpClientManager = new HttpClientManager())
             {
-                var body = await httpClientManager.GetDealsAsync(queryWoodDealContent);
-
-                while (pageNumber < totalPages)
+                try
                 {
-                    using (var dbManager = new DatabaseManager(appSettings["databaseConnectionString"]))
-                    using (SqlCommand command = new SqlCommand(insertQuery, dbManager.GetConnection()))
+                    var body = await httpClientManager.GetDealsAsync(queryWoodDealContent);
+
+                    while (pageNumber < totalPages)
                     {
-                        Root deals = JsonConvert.DeserializeObject<Root>(body);
-
-                        if (pageNumber == 0)
+                        using (var dbManager = new DatabaseManager(appSettings["databaseConnectionString"]))
+                        using (SqlCommand command = new SqlCommand(insertQuery, dbManager.GetConnection()))
                         {
-                            var total = deals.data.searchReportWoodDeal.total;
-                            totalPages = (int)Math.Ceiling((double)total / pageSize);
-                        }
+                            Root deals = JsonConvert.DeserializeObject<Root>(body);
 
-                        var parameters = new List<SqlParameter>
+                            if (pageNumber == 0)
+                            {
+                                var total = deals.data.searchReportWoodDeal.total;
+                                totalPages = (int)Math.Ceiling((double)total / pageSize);
+                            }
+
+                            var parameters = new List<SqlParameter>
                         {
                             new SqlParameter("@SellerName", SqlDbType.NVarChar),
                             new SqlParameter("@SellerInn", SqlDbType.Char),
@@ -51,44 +53,57 @@ namespace A2TeamAssignment
                             new SqlParameter("@DealNumber", SqlDbType.NVarChar)
                         };
 
-                        command.Parameters.AddRange(parameters.ToArray());
+                            command.Parameters.AddRange(parameters.ToArray());
 
-                        foreach (var deal in deals.data.searchReportWoodDeal.content)
-                        {
-                            var validator = new WoodDealsValidator();
-
-                            int rowsAffected = 0;
-
-                            if (validator.IsValidDeal(deal, parameters))
+                            foreach (var deal in deals.data.searchReportWoodDeal.content)
                             {
-                                parameters[0].Value = deal.sellerName;
-                                parameters[1].Value = deal.sellerInn;
-                                parameters[2].Value = deal.buyerName;
-                                parameters[3].Value = deal.buyerInn;
-                                parameters[4].Value = Math.Round(Double.Parse(deal.woodVolumeBuyer), 2);
-                                parameters[5].Value = Math.Round(Double.Parse(deal.woodVolumeSeller), 2);
-                                parameters[6].Value = deal.dealDate;
-                                parameters[7].Value = deal.dealNumber;
+                                var validator = new WoodDealsValidator();
 
-                                rowsAffected = dbManager.ExecuteNonQuery(command);
-                            }
+                                int rowsAffected = 0;
 
-                            if (rowsAffected > 0)
-                            {
-                                Console.WriteLine("The deal was inserted successfully.");
-                            }
-                            else
-                            {
-                                Console.WriteLine("The deal already exists in the database.");
+                                if (validator.IsValidDeal(deal, parameters))
+                                {
+                                    parameters[0].Value = deal.sellerName;
+                                    parameters[1].Value = deal.sellerInn;
+                                    parameters[2].Value = deal.buyerName;
+                                    parameters[3].Value = deal.buyerInn;
+                                    parameters[4].Value = Math.Round(Double.Parse(deal.woodVolumeBuyer), 2);
+                                    parameters[5].Value = Math.Round(Double.Parse(deal.woodVolumeSeller), 2);
+                                    parameters[6].Value = deal.dealDate;
+                                    parameters[7].Value = deal.dealNumber;
+
+                                    rowsAffected = dbManager.ExecuteNonQuery(command);
+                                }
+
+                                if (rowsAffected > 0)
+                                {
+                                    Console.WriteLine("The deal was inserted successfully.");
+                                }
+                                else
+                                {
+                                    Console.WriteLine("The deal already exists in the database.");
+                                }
                             }
                         }
                     }
-
-                    queryWoodDealContent = queryWoodDealContent.Replace($"\"number\":{pageNumber}", $"\"number\":{pageNumber + 1}");
-                    pageNumber++;
-
-                    await Task.Delay(TimeSpan.FromSeconds(10));
                 }
+                catch (HttpRequestException ex)
+                {
+                    throw new HttpRequestException($"Error requesting deals: {ex.Message}", ex);
+                }
+                catch (SqlException ex)
+                {
+                    throw new Exception($"Error executing command: {ex.Message}", ex);
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception($"Unexpected Error: {ex.Message}", ex);
+                }
+
+                queryWoodDealContent = queryWoodDealContent.Replace($"\"number\":{pageNumber}", $"\"number\":{pageNumber + 1}");
+                pageNumber++;
+
+                await Task.Delay(TimeSpan.FromSeconds(10));
             }
         }
     }
