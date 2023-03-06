@@ -41,22 +41,10 @@ namespace A2TeamAssignment
                 {
                     int pageNumber = 0;
 
-                    while (pageNumber < _totalPages)
+                    using (_dbManager = new DatabaseManager(ConfigurationManager.AppSettings["databaseConnectionString"]))
+                    using (SqlCommand command = new SqlCommand(_insertQuery, _dbManager.GetConnection()))
                     {
-                        using (_dbManager = new DatabaseManager(ConfigurationManager.AppSettings["databaseConnectionString"]))
-                        using (SqlCommand command = new SqlCommand(_insertQuery, _dbManager.GetConnection()))
-                        {
-                            var body = await _httpClientManager.GetDealsAsync(_queryWoodDealContent);
-
-                            Root deals = JsonConvert.DeserializeObject<Root>(body);
-
-                            if (pageNumber == 0)
-                            {
-                                var total = deals.data.searchReportWoodDeal.total;
-                                _totalPages = (int)Math.Ceiling((double)total / _pageSize);
-                            }
-
-                            var parameters = new List<SqlParameter>
+                        var parameters = new List<SqlParameter>
                             {
                                 new SqlParameter("@SellerName", SqlDbType.NVarChar),
                                 new SqlParameter("@SellerInn", SqlDbType.Char),
@@ -68,7 +56,19 @@ namespace A2TeamAssignment
                                 new SqlParameter("@DealNumber", SqlDbType.NVarChar)
                             };
 
-                            command.Parameters.AddRange(parameters.ToArray());
+                        command.Parameters.AddRange(parameters.ToArray());
+
+                        while (pageNumber < _totalPages)
+                        {
+                            var body = await _httpClientManager.GetDealsAsync(_queryWoodDealContent);
+
+                            Root deals = JsonConvert.DeserializeObject<Root>(body);
+
+                            if (pageNumber == 0)
+                            {
+                                var total = deals.data.searchReportWoodDeal.total;
+                                _totalPages = (int)Math.Ceiling((double)total / _pageSize);
+                            }
 
                             foreach (var deal in deals.data.searchReportWoodDeal.content)
                             {
@@ -88,11 +88,12 @@ namespace A2TeamAssignment
                                     _dbManager.ExecuteNonQuery(command);
                                 }
                             }
-                        }
-                        _queryWoodDealContent = _queryWoodDealContent.Replace($"\"number\":{pageNumber}", $"\"number\":{pageNumber + 1}");
-                        pageNumber++;
 
-                        await Task.Delay(TimeSpan.FromSeconds(10));
+                            _queryWoodDealContent = _queryWoodDealContent.Replace($"\"number\":{pageNumber}", $"\"number\":{pageNumber + 1}");
+                            pageNumber++;
+
+                            await Task.Delay(TimeSpan.FromSeconds(10));
+                        }
                     }
                 }
                 catch (HttpRequestException ex)
