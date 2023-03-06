@@ -55,7 +55,9 @@ namespace A2TeamAssignment
 
 
                     using (var dbManager = new DatabaseManager(appSettings["databaseConnectionString"]))
-                    using (var response = await httpClient.SendAsync(request))
+                    using (SqlCommand command = new SqlCommand(insertQuery, dbManager.GetConnection()))
+                    using (var response = await httpClient.SendAsync(request)) 
+
                     {
                         response.EnsureSuccessStatusCode();
                         var body = await response.Content.ReadAsStringAsync();
@@ -66,6 +68,113 @@ namespace A2TeamAssignment
                         {
                             var total = deals.data.searchReportWoodDeal.total;
                             totalPages = (int)Math.Ceiling((double)total / pageSize);
+                        }
+
+
+                        var sellerNameParam = new SqlParameter("@SellerName", SqlDbType.NVarChar);
+                        var sellerInnParam = new SqlParameter("@SellerInn", SqlDbType.Char);
+                        var buyerNameParam = new SqlParameter("@BuyerName", SqlDbType.NVarChar);
+                        var buyerInnParam = new SqlParameter("@BuyerInn", SqlDbType.Char);
+                        var woodVolumeBuyerParam = new SqlParameter("@WoodVolumeBuyer", SqlDbType.Float);
+                        var woodVolumeSellerParam = new SqlParameter("@WoodVolumeSeller", SqlDbType.Float);
+                        var dealDateParam = new SqlParameter("@DealDate", SqlDbType.DateTime);
+                        var dealNumberParam = new SqlParameter("@DealNumber", SqlDbType.NVarChar);
+
+                        // add parameters to command
+                        command.Parameters.Add(sellerNameParam);
+                        command.Parameters.Add(sellerInnParam);
+                        command.Parameters.Add(buyerNameParam);
+                        command.Parameters.Add(buyerInnParam);
+                        command.Parameters.Add(woodVolumeBuyerParam);
+                        command.Parameters.Add(woodVolumeSellerParam);
+                        command.Parameters.Add(dealDateParam);
+                        command.Parameters.Add(dealNumberParam);
+
+                        foreach (var deal in deals.data.searchReportWoodDeal.content)
+                        {
+
+                            if (IsValidName(deal.sellerName))
+                            {
+                                sellerNameParam.Value = deal.sellerName;
+                            }
+                            else
+                            {
+                                continue;
+                            }
+
+                            if (IsValidInn(deal.sellerInn))
+                            {
+                                sellerInnParam.Value = deal.sellerInn;
+                            }
+                            else
+                            {
+                                continue;
+                            }
+
+                            if (IsValidName(deal.buyerName))
+                            {
+                                buyerNameParam.Value = deal.buyerName;
+                            }
+                            else
+                            {
+                                continue;
+                            }
+
+                            if (IsValidInn(deal.sellerInn))
+                            {
+                                buyerInnParam.Value = deal.buyerInn;
+                            }
+                            else
+                            {
+                                continue;
+                            }
+
+                            if (IsValidDouble(deal.woodVolumeBuyer))
+                            {
+                                woodVolumeBuyerParam.Value = Math.Round(Double.Parse(deal.woodVolumeBuyer), 2);
+                            }
+                            else
+                            {
+                                continue;
+                            }
+
+                            if (IsValidDouble(deal.woodVolumeSeller))
+                            {
+                                woodVolumeSellerParam.Value = Math.Round(Double.Parse(deal.woodVolumeSeller), 2);
+                            }
+                            else
+                            {
+                                continue;
+                            }
+
+                            if (IsValidDate(deal.dealDate))
+                            {
+                                dealDateParam.Value = deal.dealDate;
+                            }
+                            else
+                            {
+                                continue;
+                            }
+
+                            if (IsValidNumeric(deal.dealNumber))
+                            {
+                                dealNumberParam.Value = deal.dealNumber;
+                            }
+                            else
+                            {
+                                continue;
+                            }
+
+                            int rowsAffected = command.ExecuteNonQuery();
+
+                            if (rowsAffected > 0)
+                            {
+                                Console.WriteLine("The deal was inserted successfully.");
+                            }
+                            else
+                            {
+                                Console.WriteLine("The deal already exists in the database.");
+                            }
                         }
                     }
 
