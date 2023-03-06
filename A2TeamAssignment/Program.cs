@@ -85,6 +85,8 @@ namespace A2TeamAssignment
                         {
                             var validator = new WoodDealsValidator();
 
+                            int rowsAffected = 0;
+
                             if (validator.IsValidDeal(deal, parameters))
                             {
                                 parameters[0].Value = deal.sellerName;
@@ -95,13 +97,18 @@ namespace A2TeamAssignment
                                 parameters[5].Value = Math.Round(Double.Parse(deal.woodVolumeSeller), 2);
                                 parameters[6].Value = deal.dealDate;
                                 parameters[7].Value = deal.dealNumber;
+
+                                rowsAffected = dbManager.ExecuteNonQuery(command);
+                            }
+
+                            if (rowsAffected > 0)
+                            {
+                                Console.WriteLine("The deal was inserted successfully.");
                             }
                             else
                             {
-                                continue;
+                                Console.WriteLine("The deal already exists in the database.");
                             }
-
-                            int rowsAffected = command.ExecuteNonQuery();
                         }
                     }
 

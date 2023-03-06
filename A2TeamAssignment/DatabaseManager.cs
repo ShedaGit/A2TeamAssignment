@@ -47,5 +47,25 @@ namespace A2TeamAssignment
                 Console.WriteLine("The connection is already closed.");
             }
         }
+
+        public int ExecuteNonQuery(SqlCommand command)
+        {
+            if (command == null)
+            {
+                throw new ArgumentNullException(nameof(command));
+            }
+
+            try
+            {
+                using (command)
+                {
+                    return command.ExecuteNonQuery();
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw new Exception($"Error executing command: {ex.Message}", ex);
+            }
+        }
     }
 }
