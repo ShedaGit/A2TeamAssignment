@@ -39,7 +39,6 @@ namespace A2TeamAssignment
             {
                 try
                 {
-                    var body = await _httpClientManager.GetDealsAsync(_queryWoodDealContent);
                     int pageNumber = 0;
 
                     while (pageNumber < _totalPages)
@@ -47,6 +46,8 @@ namespace A2TeamAssignment
                         using (_dbManager = new DatabaseManager(ConfigurationManager.AppSettings["databaseConnectionString"]))
                         using (SqlCommand command = new SqlCommand(_insertQuery, _dbManager.GetConnection()))
                         {
+                            var body = await _httpClientManager.GetDealsAsync(_queryWoodDealContent);
+
                             Root deals = JsonConvert.DeserializeObject<Root>(body);
 
                             if (pageNumber == 0)
