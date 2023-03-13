@@ -97,7 +97,7 @@ namespace A2TeamAssignment
 
         private bool IsValidNumeric(string dealNumber)
         {
-            return Regex.IsMatch(dealNumber, @"^[0-9]+$");
+            return Regex.IsMatch(dealNumber, @"^[0-9]+$") && dealNumber.Length <= 50;
         }
     }
 }
