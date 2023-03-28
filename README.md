@@ -14,7 +14,7 @@ The aim of this project is to develop a parser for a website page using HTTP req
 
 ## Evaluation Criteria
 
-The project will be evaluated based on the following criteria:
+This project should be evaluated based on the following criteria:
 
 1. **Parser code**: The parser code should be simple and straightforward without unnecessary complications like abstractions, interfaces, and asynchrony, auxiliary libraries. Linear execution: sending HTTP request - parsing response - saving data.
 2. **Database table**: The database table should have an appropriate field structure and data types.
