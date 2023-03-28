@@ -1,4 +1,4 @@
-# A2TeamAssignment - Web Page Parser
+# Web Page Parser
 
 ## Overview
 
