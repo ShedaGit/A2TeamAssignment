@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Text.RegularExpressions;
 
-namespace A2TeamAssignment
+namespace WoodDealsParser
 {
     internal class WoodDealsValidator
     {

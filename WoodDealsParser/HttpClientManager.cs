@@ -4,7 +4,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace A2TeamAssignment
+namespace WoodDealsParser
 {
     public class HttpClientManager : IDisposable
     {

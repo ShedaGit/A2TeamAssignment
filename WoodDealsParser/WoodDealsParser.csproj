@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{CA544519-0745-42CD-9917-ECB7F9F33748}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>A2TeamAssignment</RootNamespace>
-    <AssemblyName>A2TeamAssignment</AssemblyName>
+    <RootNamespace>WoodDealsParser</RootNamespace>
+    <AssemblyName>WoodDealsParser</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>

@@ -2,7 +2,7 @@
 using System.Configuration;
 using System.Threading;
 
-namespace A2TeamAssignment
+namespace WoodDealsParser
 {
     class Program
     {

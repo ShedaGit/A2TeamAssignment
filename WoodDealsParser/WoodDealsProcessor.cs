@@ -7,7 +7,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
-namespace A2TeamAssignment
+namespace WoodDealsParser
 {
     public class WoodDealsProcessor : IDisposable
     {

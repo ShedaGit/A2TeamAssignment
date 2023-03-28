@@ -2,7 +2,7 @@
 using System.Data;
 using System.Data.SqlClient;
 
-namespace A2TeamAssignment
+namespace WoodDealsParser
 {
     public class DatabaseManager : IDisposable
     {
